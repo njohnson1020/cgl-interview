@@ -5,15 +5,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
 import {
-  prescriptionFormSchema,
+  prescriptionScheduleSchema,
   PrescriptionFormValues,
   defaultFormValues,
-} from '@app/lib/prescriptionForm/schema';
+} from '@app/lib/prescriptionSchedule/schema';
 
-import { DayOfWeek, PrescriptionType } from '@app/lib/prescriptionForm/enums';
+import {
+  DayOfWeek,
+  PrescriptionType,
+} from '@app/lib/prescriptionSchedule/enums';
 
 export default function PrescriptionForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [formSubmitError, setFormSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -21,8 +25,8 @@ export default function PrescriptionForm() {
     formState: { errors },
     watch,
     setValue,
-  } = useForm<PrescriptionFormValues>({
-    resolver: zodResolver(prescriptionFormSchema),
+  } = useForm({
+    resolver: zodResolver(prescriptionScheduleSchema),
     defaultValues: defaultFormValues,
   });
 
@@ -40,17 +44,19 @@ export default function PrescriptionForm() {
 
   const onSubmit = async (data: PrescriptionFormValues) => {
     setIsLoading(true);
+    setFormSubmitError('');
+
     try {
       console.info(`Form submitted with data:`, JSON.stringify(data));
-    } catch (error) {
-      console.error('Error processing form:', error);
+    } catch (error: Error | unknown) {
+      setFormSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'An unknown error occurred while processing the form.'
+      );
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const onError = (errors: any) => {
-    console.error('Validation errors:', errors);
   };
 
   const stabilisationSection = (
@@ -132,6 +138,10 @@ export default function PrescriptionForm() {
     </>
   );
 
+  const dayOfWeekOptions = Object.entries(DayOfWeek).filter(
+    ([_, value]) => typeof value === 'number'
+  ) as [string, number][];
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">
@@ -144,20 +154,18 @@ export default function PrescriptionForm() {
             Days of Week Availability
           </label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {Object.values(DayOfWeek)
-              .filter((v) => typeof v === 'number')
-              .map((value) => (
-                <div key={value} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id={`dow-${value}`}
-                    value={value}
-                    {...register('daysOfWeek')}
-                    className="mr-2"
-                  />
-                  <label htmlFor={`dow-${value}`}>{DayOfWeek[value]}</label>
-                </div>
-              ))}
+            {dayOfWeekOptions.map(([label, value]) => (
+              <div key={value} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`dow-${value}`}
+                  value={value}
+                  {...register('daysOfWeek')}
+                  className="mr-2"
+                />
+                <label htmlFor={`dow-${value}`}>{label}</label>
+              </div>
+            ))}
           </div>
           {errors.daysOfWeek && (
             <p className="text-red-500 text-sm mt-1">
@@ -212,6 +220,10 @@ export default function PrescriptionForm() {
             {isLoading ? 'Processing...' : 'Generate Schedule'}
           </button>
         </div>
+
+        {formSubmitError && (
+          <p className="text-red-500 text-sm mt-1">{formSubmitError}</p>
+        )}
       </form>
 
       {/* TODO: display table results */}

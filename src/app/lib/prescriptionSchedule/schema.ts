@@ -1,10 +1,15 @@
 import { z } from 'zod';
 import { DayOfWeek, PrescriptionType } from './enums';
 
-export const prescriptionFormSchema = z
+export const prescriptionScheduleSchema = z
   .object({
     daysOfWeek: z
-      .array(z.enum(Object.keys(DayOfWeek) as [keyof typeof DayOfWeek]))
+      .array(
+        z.preprocess(
+          (value) => (typeof value === 'string' ? parseInt(value) : value),
+          z.nativeEnum(DayOfWeek)
+        )
+      )
       .refine((days) => days.length >= 2, {
         message: 'At least 2 days of the week must be selected',
       }),
@@ -99,9 +104,16 @@ export const prescriptionFormSchema = z
     }
   });
 
-export type PrescriptionFormValues = z.infer<typeof prescriptionFormSchema>;
+export interface PrescriptionFormValues {
+  daysOfWeek: DayOfWeek[]; // Explicitly typed as an array of DayOfWeek
+  prescriptionType: PrescriptionType;
+  dosage?: number;
+  initialDailyDose?: number;
+  changeFrequency?: number;
+  changeAmount?: number;
+}
 
-export const defaultFormValues: Partial<PrescriptionFormValues> = {
+export const defaultFormValues: PrescriptionFormValues = {
   daysOfWeek: [],
   prescriptionType: PrescriptionType.Stabilisation,
   dosage: undefined,

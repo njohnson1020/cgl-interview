@@ -1,11 +1,14 @@
 import { describe, it, expect, chai } from 'vitest';
 import {
-  prescriptionFormSchema,
+  prescriptionScheduleSchema,
   defaultFormValues,
-} from '@app/lib/prescriptionForm/schema';
-import { PrescriptionType } from '@app/lib/prescriptionForm/enums';
+} from '@app/lib/prescriptionSchedule/schema';
+import {
+  DayOfWeek,
+  PrescriptionType,
+} from '@app/lib/prescriptionSchedule/enums';
 
-describe('prescriptionFormSchema', () => {
+describe('prescriptionScheduleSchema', () => {
   describe('defaultFormValues', () => {
     it('should have correct default values', () => {
       expect(defaultFormValues).toEqual({
@@ -21,7 +24,7 @@ describe('prescriptionFormSchema', () => {
 
   describe('daysOfWeek validation', () => {
     it('should fail if daysOfWeek is missing', () => {
-      const result = prescriptionFormSchema.safeParse({
+      const result = prescriptionScheduleSchema.safeParse({
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -33,8 +36,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail if fewer than 2 days are selected', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -48,8 +51,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass if at least 2 days are selected', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -58,15 +61,15 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with all days selected', () => {
-      const result = prescriptionFormSchema.safeParse({
+      const result = prescriptionScheduleSchema.safeParse({
         daysOfWeek: [
-          'Sunday',
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday,
+          DayOfWeek.Wednesday,
+          DayOfWeek.Thursday,
+          DayOfWeek.Friday,
+          DayOfWeek.Saturday,
+          DayOfWeek.Sunday,
         ],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
@@ -76,8 +79,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail with invalid day names', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'InvalidDay'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: ['InvalidDay'],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -88,8 +91,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('prescriptionType validation', () => {
     it('should fail if prescriptionType is missing', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         dosage: 30,
       });
 
@@ -100,8 +103,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail with invalid prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: 'InvalidType',
         dosage: 30,
       });
@@ -110,8 +113,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with valid prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -122,8 +125,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('dosage validation', () => {
     it('should fail if dosage is negative', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: -5,
       });
@@ -138,8 +141,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail if dosage exceeds maximum', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 70,
       });
@@ -154,8 +157,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with valid dosage values', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -164,14 +167,14 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with boundary dosage values', () => {
-      const resultLower = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultLower = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 0,
       });
 
-      const resultUpper = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultUpper = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 60,
       });
@@ -183,8 +186,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('initialDailyDose validation', () => {
     it('should fail if initialDailyDose is negative', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: -10,
         changeFrequency: 7,
@@ -201,8 +204,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail if initialDailyDose exceeds maximum', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 65,
         changeFrequency: 7,
@@ -219,8 +222,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with valid initialDailyDose values', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 25,
         changeFrequency: 7,
@@ -231,16 +234,16 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with boundary initialDailyDose values', () => {
-      const resultLower = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultLower = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 0,
         changeFrequency: 7,
         changeAmount: 5,
       });
 
-      const resultUpper = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultUpper = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 60,
         changeFrequency: 7,
@@ -254,8 +257,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('changeFrequency validation', () => {
     it('should fail if changeFrequency is not an integer', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7.5,
@@ -272,8 +275,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail if changeFrequency is not positive', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 0,
@@ -290,8 +293,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with valid changeFrequency values', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -304,8 +307,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('changeAmount validation', () => {
     it('should fail if changeAmount is negative', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -322,8 +325,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should fail if changeAmount exceeds maximum', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -340,8 +343,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with valid changeAmount values', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -352,16 +355,16 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should pass with boundary changeAmount values', () => {
-      const resultLower = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultLower = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
         changeAmount: 0,
       });
 
-      const resultUpper = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const resultUpper = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -375,8 +378,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('conditional validation based on prescription type', () => {
     it('should require dosage for Stabilisation prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         // Missing dosage
       });
@@ -392,8 +395,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not require initialDailyDose, changeFrequency, changeAmount for Stabilisation', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
         // Missing initialDailyDose, changeFrequency, changeAmount
@@ -403,8 +406,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not include initialDailyDose for Stabilisation', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
         initialDailyDose: 20,
@@ -422,8 +425,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not include changeFrequency for Stabilisation', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
         changeFrequency: 7,
@@ -441,8 +444,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not include changeAmount for Stabilisation', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
         changeAmount: 5,
@@ -460,8 +463,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require initialDailyDose for Increasing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         // Missing initialDailyDose
         changeFrequency: 7,
@@ -480,8 +483,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require changeFrequency for Increasing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 30,
         // Missing changeFrequency
@@ -500,8 +503,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require changeAmount for Increasing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -520,8 +523,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not include dosage for Increasing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         dosage: 30,
         initialDailyDose: 30,
@@ -541,8 +544,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require initialDailyDose for Reducing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         // Missing initialDailyDose
         changeFrequency: 7,
@@ -561,8 +564,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require changeFrequency for Reducing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         // Missing changeFrequency
@@ -581,8 +584,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should require changeAmount for Reducing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 30,
         changeFrequency: 7,
@@ -601,8 +604,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should not include dosage for Reducing prescription type', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         dosage: 30,
         initialDailyDose: 30,
@@ -624,8 +627,8 @@ describe('prescriptionFormSchema', () => {
 
   describe('complete valid objects', () => {
     it('should validate a complete Stabilisation prescription', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Wednesday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Stabilisation,
         dosage: 30,
       });
@@ -634,8 +637,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should validate a complete Increasing prescription', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Wednesday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Increasing,
         initialDailyDose: 15,
         changeFrequency: 7,
@@ -646,8 +649,8 @@ describe('prescriptionFormSchema', () => {
     });
 
     it('should validate a complete Reducing prescription', () => {
-      const result = prescriptionFormSchema.safeParse({
-        daysOfWeek: ['Monday', 'Wednesday', 'Friday'],
+      const result = prescriptionScheduleSchema.safeParse({
+        daysOfWeek: [DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday],
         prescriptionType: PrescriptionType.Reducing,
         initialDailyDose: 45,
         changeFrequency: 7,
