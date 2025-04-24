@@ -1,6 +1,6 @@
 interface ScheduleDay {
-  date: string;
-  day: string;
+  index: number;
+  date: Date;
   dose: number;
   pickup: boolean;
 }

@@ -14,6 +14,7 @@ import {
   DayOfWeek,
   PrescriptionType,
 } from '@app/lib/prescriptionSchedule/enums';
+import { generatePrescriptionSchedule } from '../actions/generate-schedule';
 
 export default function PrescriptionForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +49,8 @@ export default function PrescriptionForm() {
 
     try {
       console.info(`Form submitted with data:`, JSON.stringify(data));
+      const result = await generatePrescriptionSchedule(data);
+      console.info(`Generated schedule:`, JSON.stringify(result));
     } catch (error: Error | unknown) {
       setFormSubmitError(
         error instanceof Error
