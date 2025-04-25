@@ -1,3 +1,5 @@
+import { isBankHoliday } from '../utils/date';
+
 export default function ScheduleTable({
   scheduleData,
 }: {
@@ -25,7 +27,7 @@ export default function ScheduleTable({
                 Date
               </th>
               <th className="py-3 px-4 text-left font-semibold text-blue-800">
-                Dose (mL)
+                Pickup Dose (mL)
               </th>
               <th className="py-3 px-4 text-left font-semibold text-blue-800">
                 Available For Pickup
@@ -44,13 +46,17 @@ export default function ScheduleTable({
                   {formatDate(day.date)}
                 </td>
                 <td className="py-3 px-4 text-gray-700 font-semibold">
-                  {day.dose} mL
+                  {day.dose.toFixed(2)} mL
                 </td>
                 <td className="py-3 px-4">
                   {day.pickup ? (
                     <div className="flex items-center text-green-600 font-medium">
                       <span>Yes</span>
                     </div>
+                  ) : isBankHoliday(day.date) ? (
+                    <span className="text-yellow-500 font-medium">
+                      Bank Holiday
+                    </span>
                   ) : (
                     <span className="text-gray-400">No</span>
                   )}

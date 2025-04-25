@@ -8,9 +8,17 @@ import { PrescriptionFormValues } from '@app/lib/prescriptionSchedule/schema';
 import { getCurrentDate } from '@app/utils/date';
 import { prescriptionScheduleSchema } from '@app/lib/prescriptionSchedule/schema';
 
-vi.mock('@app/utils/date', () => ({
-  getCurrentDate: vi.fn(),
-}));
+vi.mock('@app/utils/date', async () => {
+  // Import the real module
+  const actual = await vi.importActual<typeof import('@app/utils/date')>(
+    '@app/utils/date'
+  );
+
+  return {
+    ...actual, // Spread the real module, so we can lookup real bank holidays
+    getCurrentDate: vi.fn(), // Mock only `getCurrentDate`
+  };
+});
 
 vi.mock('@app/lib/prescriptionSchedule/schema', () => ({
   prescriptionScheduleSchema: {
@@ -19,7 +27,7 @@ vi.mock('@app/lib/prescriptionSchedule/schema', () => ({
 }));
 
 describe('Prescription Schedule Generator', () => {
-  const mockToday = new Date(2025, 3, 24);
+  const mockToday = new Date(2025, 2, 6);
 
   beforeEach(() => {
     vi.mocked(getCurrentDate).mockReturnValue(mockToday);
@@ -227,6 +235,72 @@ describe('Prescription Schedule Generator', () => {
 
       expectZeroDoseOnNonPickupDays(schedule);
     });
+
+    test('should not reduce a dose past 0ml', async () => {
+      // Pickup every day, reduce by 5 every 3 days
+      const formData: PrescriptionFormValues = {
+        prescriptionType: PrescriptionType.Reducing,
+        daysOfWeek: [
+          DayOfWeek.Sunday,
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday,
+          DayOfWeek.Wednesday,
+          DayOfWeek.Thursday,
+          DayOfWeek.Friday,
+          DayOfWeek.Saturday,
+        ],
+        initialDailyDose: 30,
+        changeFrequency: 3,
+        changeAmount: 15,
+      };
+
+      const schedule = await generatePrescriptionSchedule(formData);
+
+      expect(schedule.length).toBe(14);
+
+      // Day 0-2: 30
+      // Day 3-5: 15
+      // Day 6-8: 0
+      // Day 9-11: 0
+      // Day 12-13: 0
+      schedule.forEach((day, index) => {
+        if (index < 3) {
+          expect(day.dose).toBe(30);
+        } else if (index < 6) {
+          expect(day.dose).toBe(15);
+        } else if (index < 9) {
+          expect(day.dose).toBe(0);
+        } else if (index < 12) {
+          expect(day.dose).toBe(0);
+        } else {
+          expect(day.dose).toBe(0);
+        }
+      });
+    });
+  });
+
+  test('should not allow pickups on bank holidays', async () => {
+    vi.mocked(getCurrentDate).mockReturnValue(new Date(2025, 3, 20));
+
+    const formData: PrescriptionFormValues = {
+      prescriptionType: PrescriptionType.Stabilisation,
+      daysOfWeek: [
+        DayOfWeek.Sunday,
+        DayOfWeek.Monday,
+        DayOfWeek.Tuesday,
+        DayOfWeek.Wednesday,
+        DayOfWeek.Thursday,
+        DayOfWeek.Friday,
+        DayOfWeek.Saturday,
+      ],
+      dosage: 10,
+    };
+
+    const schedule = await generatePrescriptionSchedule(formData);
+
+    expect(schedule.length).toBe(14);
+    const easterMonday = schedule.find((day) => day.date.getDate() === 21);
+    expect(easterMonday?.pickup).toBe(false);
   });
 
   test('should throw error for invalid data', async () => {

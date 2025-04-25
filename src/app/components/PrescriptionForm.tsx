@@ -103,24 +103,6 @@ export default function PrescriptionForm() {
         )}
       </div>
       <div>
-        <label htmlFor="changeFrequency" className="block text-gray-700">
-          Frequency (days)
-        </label>
-        <input
-          type="number"
-          id="changeFrequency"
-          {...register('changeFrequency', { valueAsNumber: true })}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          min="1"
-          step="1"
-        />
-        {errors.changeFrequency && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.changeFrequency.message}
-          </p>
-        )}
-      </div>
-      <div>
         <label htmlFor="changeAmount" className="block text-gray-700">
           {`Amount to ${
             prescriptionType === PrescriptionType.Increasing
@@ -138,6 +120,28 @@ export default function PrescriptionForm() {
         {errors.changeAmount && (
           <p className="text-red-500 text-sm mt-1">
             {errors.changeAmount.message}
+          </p>
+        )}
+      </div>
+      <div>
+        <label htmlFor="changeFrequency" className="block text-gray-700">
+          {`Frequency of ${
+            prescriptionType === PrescriptionType.Increasing
+              ? 'Increase'
+              : 'Decrease'
+          } (days)`}
+        </label>
+        <input
+          type="number"
+          id="changeFrequency"
+          {...register('changeFrequency', { valueAsNumber: true })}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          min="1"
+          step="1"
+        />
+        {errors.changeFrequency && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.changeFrequency.message}
           </p>
         )}
       </div>

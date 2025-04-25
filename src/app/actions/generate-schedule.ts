@@ -1,7 +1,7 @@
 'use server';
 
 import { addDays, differenceInDays, startOfDay } from 'date-fns';
-import { getCurrentDate } from '@app/utils/date';
+import { getCurrentDate, isBankHoliday } from '@app/utils/date';
 import {
   prescriptionScheduleSchema,
   PrescriptionFormValues,
@@ -24,7 +24,8 @@ const calculateSchedule = (
   for (let i = 0; i < 14; i++) {
     const currentDate = addDays(today, i);
     const dayOfWeek = currentDate.getDay();
-    const isPickupDay = data.daysOfWeek.includes(dayOfWeek);
+    const isPickupDay =
+      data.daysOfWeek.includes(dayOfWeek) && !isBankHoliday(currentDate);
 
     // Get the current dosage using the provided callback
     const currentDosage = getDailyDosage(currentDate, firstPickupDay);
@@ -85,7 +86,7 @@ const calculateVariableDosageSchedule = (data: PrescriptionFormValues) => {
     if (shouldChangeDosage) {
       currentDosage = isIncreasing
         ? currentDosage + changeAmount
-        : currentDosage - changeAmount;
+        : Math.max(0, currentDosage - changeAmount); // don't allow negative dosages
     }
 
     return currentDosage;
