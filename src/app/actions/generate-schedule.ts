@@ -8,8 +8,6 @@ import {
 } from '@app/lib/prescriptionSchedule/schema';
 import { PrescriptionType } from '@app/lib/prescriptionSchedule/enums';
 
-const today = startOfDay(getCurrentDate());
-
 const calculateSchedule = (
   data: PrescriptionFormValues,
   getDailyDosage: (
@@ -17,6 +15,8 @@ const calculateSchedule = (
     firstPickupDay: ScheduleDay | undefined
   ) => number
 ) => {
+  const now = getCurrentDate();
+  const today = startOfDay(now);
   const schedule: ScheduleDay[] = [];
   let firstPickupDay: ScheduleDay | undefined;
   let lastPickupDay: ScheduleDay | undefined;
@@ -70,6 +70,7 @@ const calculateVariableDosageSchedule = (data: PrescriptionFormValues) => {
   const changeFrequency = data.changeFrequency!;
   const changeAmount = data.changeAmount!;
   const isIncreasing = data.prescriptionType === PrescriptionType.Increasing;
+  let currentDosage = initialDailyDose;
 
   return calculateSchedule(data, (currentDate, firstPickupDay) => {
     // If no first pickup day yet, return initial dose
@@ -82,22 +83,12 @@ const calculateVariableDosageSchedule = (data: PrescriptionFormValues) => {
     const shouldChangeDosage = daysDifference % changeFrequency === 0;
 
     if (shouldChangeDosage) {
-      // Calculate how many changes to apply
-      const changeCount = Math.floor(daysDifference / changeFrequency);
-      // Apply dosage change based on prescription type
-      return isIncreasing
-        ? initialDailyDose + changeAmount * changeCount
-        : initialDailyDose - changeAmount * changeCount;
+      currentDosage = isIncreasing
+        ? currentDosage + changeAmount
+        : currentDosage - changeAmount;
     }
 
-    // If no change is needed on this day, calculate current dosage based on previous changes
-    const previousChangeDay =
-      daysDifference - (daysDifference % changeFrequency);
-    const previousChanges = Math.floor(previousChangeDay / changeFrequency);
-
-    return isIncreasing
-      ? initialDailyDose + changeAmount * previousChanges
-      : initialDailyDose - changeAmount * previousChanges;
+    return currentDosage;
   });
 };
 

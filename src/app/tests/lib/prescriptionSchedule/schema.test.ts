@@ -1,4 +1,4 @@
-import { describe, it, expect, chai } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   prescriptionScheduleSchema,
   defaultFormValues,
