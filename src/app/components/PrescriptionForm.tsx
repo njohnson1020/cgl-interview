@@ -36,7 +36,6 @@ export default function PrescriptionForm() {
   const prescriptionType = watch('prescriptionType');
 
   useEffect(() => {
-    setSchedule([]);
     if (prescriptionType === PrescriptionType.Stabilisation) {
       setValue('initialDailyDose', undefined);
       setValue('changeFrequency', undefined);
@@ -49,6 +48,7 @@ export default function PrescriptionForm() {
   const onSubmit = async (data: PrescriptionFormValues) => {
     setIsLoading(true);
     setFormSubmitError('');
+    setSchedule([]);
 
     try {
       const result = await generatePrescriptionSchedule(data);
