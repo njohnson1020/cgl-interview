@@ -8,6 +8,7 @@ import {
 } from '@app/lib/prescriptionSchedule/schema';
 import { PrescriptionType } from '@app/lib/prescriptionSchedule/enums';
 
+// higher-order function to calculate the schedule based on the provided data
 const calculateSchedule = (
   data: PrescriptionFormValues,
   getDailyDosage: (

@@ -51,7 +51,6 @@ export default function PrescriptionForm() {
     setFormSubmitError('');
 
     try {
-      console.info(`Form submitted with data:`, JSON.stringify(data));
       const result = await generatePrescriptionSchedule(data);
       setSchedule(result);
     } catch (error: Error | unknown) {

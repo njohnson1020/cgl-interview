@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CGL Tech Test
 
-## Getting Started
+## Overview
 
-First, run the development server:
+For this task, I created a NextJS application that will collect the required information via a form, and upon form submission, a server action will be run that calculates the prescription pickup schedule, based on the provided form data.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+I went with NextJS for this exercise because it is a nice full stack solution that provides both a friendly user interface as well as means for running the core logic server side. I also used a zod schema for validation, which provide a clean and easy way to validate the form of data. I used it to not only validate the expected data types for the fields, but also the conditional logic based on the selected prescription type. It also can be used both client and server side, which is especially nice if you are working in a situation where you have a separate Node backend, and you wrap your schemas in an npm package and re-use them on the front and back end to ensure consistency between them.
+
+## App Directory
+
+```none
+cgl-interview/
+├── app/ # App Router directory
+│ ├── layout.tsx # Root layout
+│ ├── page.tsx # Home page
+│ ├── actions/ # Server Actions
+│ │ ├── generate-schedule.ts # Business logic for schedule generation
+│ ├── layout.tsx
+│ ├── page.tsx
+│ ├── components/ # React components
+│ │ ├── ScheduleTable.tsx
+│ │ └── PrescriptionForm.tsx
+│ ├── lib/prescriptionSchedule # validation and enums for the schedule
+│ │ ├── enums.ts
+│ │ └── schema.ts # Zod validation schema
+│ ├── tests/ # Unit tests
+│ ├── utils/ # Utility functions
+│ │ ├── date.ts # Utility functions for dates
+├── public/ # Static assets like images and fonts
+├── next.config.js # Next.js configuration
+├── tsconfig.json # TypeScript configuration
+├── vitest.config.js # Vitest configuration
+└── package.json # Project metadata and dependencies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running the application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This is a NextJS application that I started with `create-next-app`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Install dependencies using `npm i`
+- Run the application using `npm run dev`
+- View the app in your browser at `http://localhost:3000/`
 
-## Learn More
+## Unit tests
 
-To learn more about Next.js, take a look at the following resources:
+Tests can be found in the `src/app/tests` directory. I wrote unit tests to cover both the zod schema and the core business logic that lives in the server action.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The tests can be run by running the `npm run test` command.
