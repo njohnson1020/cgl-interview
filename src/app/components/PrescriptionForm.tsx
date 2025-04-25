@@ -15,10 +15,12 @@ import {
   PrescriptionType,
 } from '@app/lib/prescriptionSchedule/enums';
 import { generatePrescriptionSchedule } from '../actions/generate-schedule';
+import ScheduleTable from './ScheduleTable';
 
 export default function PrescriptionForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [formSubmitError, setFormSubmitError] = useState<string | null>(null);
+  const [schedule, setSchedule] = useState<ScheduleDay[]>([]);
 
   const {
     register,
@@ -34,6 +36,7 @@ export default function PrescriptionForm() {
   const prescriptionType = watch('prescriptionType');
 
   useEffect(() => {
+    setSchedule([]);
     if (prescriptionType === PrescriptionType.Stabilisation) {
       setValue('initialDailyDose', undefined);
       setValue('changeFrequency', undefined);
@@ -50,7 +53,7 @@ export default function PrescriptionForm() {
     try {
       console.info(`Form submitted with data:`, JSON.stringify(data));
       const result = await generatePrescriptionSchedule(data);
-      console.info(`Generated schedule:`, JSON.stringify(result));
+      setSchedule(result);
     } catch (error: Error | unknown) {
       setFormSubmitError(
         error instanceof Error
@@ -229,7 +232,11 @@ export default function PrescriptionForm() {
         )}
       </form>
 
-      {/* TODO: display table results */}
+      {schedule.length > 0 && (
+        <div className="space-y-4 p-4 my-5 border border-gray-200 rounded-md bg-gray-50">
+          <ScheduleTable scheduleData={schedule} />
+        </div>
+      )}
     </div>
   );
 }
