@@ -236,6 +236,48 @@ describe('Prescription Schedule Generator', () => {
       expectZeroDoseOnNonPickupDays(schedule);
     });
 
+    test('should not increase a dose past 60ml', async () => {
+      // Pickup every day, increase by 5 every 3 days
+      const formData: PrescriptionFormValues = {
+        prescriptionType: PrescriptionType.Increasing,
+        daysOfWeek: [
+          DayOfWeek.Sunday,
+          DayOfWeek.Monday,
+          DayOfWeek.Tuesday,
+          DayOfWeek.Wednesday,
+          DayOfWeek.Thursday,
+          DayOfWeek.Friday,
+          DayOfWeek.Saturday,
+        ],
+        initialDailyDose: 30,
+        changeFrequency: 3,
+        changeAmount: 15,
+      };
+
+      const schedule = await generatePrescriptionSchedule(formData);
+
+      expect(schedule.length).toBe(14);
+
+      // Day 0-2: 30
+      // Day 3-5: 45
+      // Day 6-8: 60
+      // Day 9-11: 60
+      // Day 12-13: 60
+      schedule.forEach((day, index) => {
+        if (index < 3) {
+          expect(day.dose).toBe(30);
+        } else if (index < 6) {
+          expect(day.dose).toBe(45);
+        } else if (index < 9) {
+          expect(day.dose).toBe(60);
+        } else if (index < 12) {
+          expect(day.dose).toBe(60);
+        } else {
+          expect(day.dose).toBe(60);
+        }
+      });
+    });
+
     test('should not reduce a dose past 0ml', async () => {
       // Pickup every day, reduce by 5 every 3 days
       const formData: PrescriptionFormValues = {
