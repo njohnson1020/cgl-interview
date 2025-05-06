@@ -86,7 +86,7 @@ const calculateVariableDosageSchedule = (data: PrescriptionFormValues) => {
 
     if (shouldChangeDosage) {
       currentDosage = isIncreasing
-        ? currentDosage + changeAmount
+        ? Math.min(60, currentDosage + changeAmount)
         : Math.max(0, currentDosage - changeAmount); // don't allow negative dosages
     }
 
